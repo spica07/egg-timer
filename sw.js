@@ -1,4 +1,4 @@
-const CACHE_NAME = 'egg-timer-v4';
+const CACHE_NAME = 'egg-timer-v5';
 const ASSETS = [
   './',
   './index.html',
