@@ -35,6 +35,7 @@
   const footnote = document.getElementById('footnote');
   const softTime = document.getElementById('softTime');
   const hardTime = document.getElementById('hardTime');
+  const resetBtn = document.getElementById('resetBtn');
   const shareBtn = document.getElementById('shareBtn');
   const shareToast = document.getElementById('shareToast');
 
@@ -70,11 +71,25 @@
     return cookSeconds(preset) + (water === 'cold' ? heatSeconds() : 0);
   }
 
+  function isTuned() {
+    return readOffset('soft') !== 0 || readOffset('hard') !== 0;
+  }
+
+  function resetTimes() {
+    try {
+      localStorage.removeItem(offsetKey('soft'));
+      localStorage.removeItem(offsetKey('hard'));
+    } catch (e) {}
+    paintPickScreen();
+    showToast(`기준 시간을 ${BASE_COOK.soft / 60}분과 ${BASE_COOK.hard / 60}분으로 되돌렸어요`);
+  }
+
   function paintPickScreen() {
     softTime.textContent = Timer.format(totalSeconds('soft') * 1000);
     hardTime.textContent = Timer.format(totalSeconds('hard') * 1000);
     lede.innerHTML = LEDE[water];
     footnote.textContent = FOOTNOTE[water];
+    resetBtn.hidden = testMode || !isTuned();
     document.querySelectorAll('.water-btn').forEach(b => {
       const on = b.dataset.water === water;
       b.classList.toggle('active', on);
@@ -190,6 +205,7 @@
   });
 
   boilBtn.addEventListener('click', boilNow);
+  resetBtn.addEventListener('click', resetTimes);
   document.getElementById('stopBtn').addEventListener('click', backToPick);
   document.getElementById('dismissBtn').addEventListener('click', backToPick);
 
@@ -224,10 +240,11 @@
 
   // ── 공유 ─────────────────────────────────────────
 
-  function showShareToast() {
+  function showToast(message) {
+    shareToast.textContent = message;
     shareToast.hidden = false;
-    clearTimeout(showShareToast._t);
-    showShareToast._t = setTimeout(() => { shareToast.hidden = true; }, 2000);
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => { shareToast.hidden = true; }, 2400);
   }
 
   shareBtn.addEventListener('click', async () => {
@@ -238,7 +255,7 @@
     }
     try {
       await navigator.clipboard.writeText(url);
-      showShareToast();
+      showToast('링크를 복사했어요');
     } catch (e) {
       window.prompt('아래 링크를 복사하세요', url);
     }
