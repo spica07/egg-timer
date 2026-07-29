@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>계란 타이머 - 반숙 완숙 삶는 시간</title>
+<meta name="description" content="끓는 물이든 찬물이든 반숙과 완숙만 고르면 삶는 시간을 재고 알람으로 알려주는 계란 타이머입니다.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#DCE6EA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101A21" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <header class="top-bar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" class="bm-white"/>
+        <circle cx="12" cy="12.6" r="4.6" class="bm-yolk"/>
+      </svg>
+      <h1>계란 타이머</h1>
+    </div>
+    <button id="shareBtn" class="icon-btn" title="링크 공유" aria-label="링크 공유">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9.8 14.2 14.2 9.8"/>
+        <path d="M12.2 7.6 13.8 6a3.7 3.7 0 0 1 5.2 5.2l-1.6 1.6"/>
+        <path d="M11.8 16.4 10.2 18A3.7 3.7 0 0 1 5 12.8l1.6-1.6"/>
+      </svg>
+    </button>
+  </header>
+
+  <p id="shareToast" class="toast" role="status" hidden>링크를 복사했어요</p>
+
+  <!-- ── 1. 고르는 화면 ─────────────────────────── -->
+  <main class="screen screen-pick" id="pickScreen">
+
+    <div class="water-switch" id="waterSwitch" role="group" aria-label="물 상태 고르기">
+      <button class="water-btn active" data-water="boiling" aria-pressed="true">끓는 물에 넣기</button>
+      <button class="water-btn" data-water="cold" aria-pressed="false">찬물부터 삶기</button>
+    </div>
+
+    <p class="lede" id="lede">끓는 물에 계란을 넣고<br>어떻게 삶을지 누르세요</p>
+
+    <div class="preset-list">
+      <button class="preset" data-preset="soft">
+        <svg class="preset-egg" viewBox="0 0 56 56" aria-hidden="true">
+          <circle cx="28" cy="28" r="27" class="pe-water"/>
+          <circle cx="28" cy="28" r="20" class="pe-white"/>
+          <circle cx="28" cy="29" r="10" class="pe-yolk-raw"/>
+          <ellipse cx="24.5" cy="25.5" rx="3.4" ry="2.2" class="pe-gloss"/>
+        </svg>
+        <span class="preset-body">
+          <span class="preset-name">반숙</span>
+          <span class="preset-desc">노른자가 촉촉하게 흘러요</span>
+        </span>
+        <span class="preset-time" id="softTime">7:00</span>
+      </button>
+
+      <button class="preset" data-preset="hard">
+        <svg class="preset-egg" viewBox="0 0 56 56" aria-hidden="true">
+          <circle cx="28" cy="28" r="27" class="pe-water"/>
+          <circle cx="28" cy="28" r="20" class="pe-white"/>
+          <circle cx="28" cy="29" r="10" class="pe-yolk-set"/>
+        </svg>
+        <span class="preset-body">
+          <span class="preset-name">완숙</span>
+          <span class="preset-desc">노른자까지 단단하게 익어요</span>
+        </span>
+        <span class="preset-time" id="hardTime">12:00</span>
+      </button>
+    </div>
+
+    <p class="footnote" id="footnote">냉장고에서 꺼낸 보통 크기 계란 기준이에요</p>
+  </main>
+
+  <!-- ── 2. 삶는 화면 ───────────────────────────── -->
+  <main class="screen screen-run" id="runScreen" hidden>
+    <p class="run-label" id="runLabel">반숙</p>
+
+    <div class="egg-stage">
+      <svg class="egg-view" id="eggView" viewBox="0 0 240 240" role="img" aria-labelledby="eggAlt">
+        <title id="eggAlt">삶는 정도를 보여주는 계란 단면</title>
+        <circle class="egg-white" id="eggWhite" cx="120" cy="120" r="97"/>
+        <circle class="yolk-set" cx="120" cy="127" r="47"/>
+        <circle class="yolk-raw" id="yolkRaw" cx="120" cy="127" r="47"/>
+        <ellipse class="yolk-gloss" id="yolkGloss" cx="103" cy="112" rx="14" ry="9"/>
+      </svg>
+    </div>
+
+    <p class="countdown" id="countdown" role="timer" aria-live="off">7:00</p>
+
+    <!-- 찬물부터 삶을 때만 나온다. 화력·냄비에 따라 끓는 시간이 다르니
+         끓는 순간을 눌러 기준을 다시 잡는다. -->
+    <button class="boil-btn" id="boilBtn" hidden>물이 끓기 시작했어요</button>
+
+    <div class="tune" role="group" aria-label="기준 시간 조절">
+      <button class="tune-btn" id="minusBtn">&minus;30초</button>
+      <button class="tune-btn" id="plusBtn">+30초</button>
+    </div>
+
+    <p class="wake-note" id="wakeNote" hidden>화면을 켜둔 채로 두세요</p>
+
+    <button class="ghost-btn" id="stopBtn">그만하기</button>
+  </main>
+
+  <!-- ── 3. 다 된 화면 ──────────────────────────── -->
+  <main class="screen screen-done" id="doneScreen" hidden>
+    <div class="egg-stage done-pop">
+      <svg class="egg-view" viewBox="0 0 240 240" aria-hidden="true">
+        <circle class="egg-white done" cx="120" cy="120" r="97"/>
+        <circle class="yolk-set" cx="120" cy="127" r="47"/>
+      </svg>
+    </div>
+
+    <p class="done-title" id="doneTitle">반숙 다 됐어요</p>
+    <p class="done-tip">바로 찬물에 담그면 껍질이 잘 벗겨져요</p>
+
+    <button class="solid-btn" id="dismissBtn">알람 끄기</button>
+  </main>
+
+  <footer class="site-footer">
+    &copy; 2026 spica07. All rights reserved. 무단 복제 및 재배포를 금지합니다.
+  </footer>
+
+</div>
+
+<script src="assets/js/egg.js"></script>
+<script src="assets/js/timer.js"></script>
+<script src="assets/js/alarm.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

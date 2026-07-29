@@ -1,0 +1,15 @@
+{
+  "name": "계란 타이머 - 반숙 완숙 삶는 시간",
+  "short_name": "계란 타이머",
+  "description": "반숙이나 완숙만 고르면 삶는 시간을 재고 알람으로 알려주는 앱",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#DCE6EA",
+  "theme_color": "#DCE6EA",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
