@@ -135,7 +135,8 @@ body.ringing {
 
 /* ── 1. 고르는 화면 ──────────────────────────────── */
 
-.water-switch {
+/* 물 상태·개수 고르기 */
+.seg {
   width: 100%;
   display: flex;
   gap: 4px;
@@ -144,7 +145,7 @@ body.ringing {
   border-radius: 999px;
 }
 
-.water-btn {
+.seg-btn {
   flex: 1;
   padding: 11px 12px;
   background: none;
@@ -154,10 +155,11 @@ body.ringing {
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 550;
+  white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.16s ease, color 0.16s ease;
 }
-.water-btn.active {
+.seg-btn.active {
   background: var(--card);
   color: var(--ink);
   box-shadow: 0 1px 2px rgba(22, 34, 43, 0.12);

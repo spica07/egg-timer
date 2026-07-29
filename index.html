@@ -38,9 +38,15 @@
   <!-- ── 1. 고르는 화면 ─────────────────────────── -->
   <main class="screen screen-pick" id="pickScreen">
 
-    <div class="water-switch" id="waterSwitch" role="group" aria-label="물 상태 고르기">
-      <button class="water-btn active" data-water="boiling" aria-pressed="true">끓는 물에 넣기</button>
-      <button class="water-btn" data-water="cold" aria-pressed="false">찬물부터 삶기</button>
+    <div class="seg" role="group" aria-label="물 상태 고르기">
+      <button class="seg-btn active" data-water="boiling" aria-pressed="true">끓는 물에 넣기</button>
+      <button class="seg-btn" data-water="cold" aria-pressed="false">찬물부터 삶기</button>
+    </div>
+
+    <div class="seg" role="group" aria-label="계란 개수 고르기">
+      <button class="seg-btn active" data-count="few" aria-pressed="true">1~4개</button>
+      <button class="seg-btn" data-count="some" aria-pressed="false">5~8개</button>
+      <button class="seg-btn" data-count="many" aria-pressed="false">9~12개</button>
     </div>
 
     <p class="lede" id="lede">끓는 물에 계란을 넣고<br>어떻게 삶을지 누르세요</p>
@@ -82,10 +88,10 @@
     <details class="guide">
       <summary>계란 개수에 따라 얼마나 달라질까요</summary>
       <ul class="guide-list">
-        <li><b>4개까지</b>는 위 시간 그대로 삶으면 돼요.</li>
-        <li><b>5개에서 8개</b>는 1분쯤 더해 주세요. 계란이 많으면 물 온도가 더 떨어져서 다시 끓기까지 시간이 걸려요.</li>
-        <li><b>9개 이상</b>이면 한 번에 삶지 말고 두 번에 나눠 삶는 쪽이 고르게 익어요.</li>
-        <li>냄비에 계란이 겹치지 않게 한 겹으로 깔고, 물은 계란 위로 2~3센티미터 잠기게 부어요.</li>
+        <li>개수를 고르면 위 시간에 이미 더해져요. <b>5~8개는 1분</b>, <b>9~12개는 2분</b>을 더합니다.</li>
+        <li>계란이 많으면 물 온도가 더 떨어져서 다시 끓기까지 시간이 걸리기 때문이에요.</li>
+        <li>냄비에 계란이 겹치지 않게 한 겹으로 깔고, 물은 계란 위로 2~3센티미터 잠기게 부어요. 물이 넉넉하면 개수에 따른 차이가 줄어들어요.</li>
+        <li><b>13개 이상</b>이면 두 번에 나눠 삶는 쪽이 고르게 익어요.</li>
         <li>개수가 많으면 찬물이 끓기까지도 더 걸려요. 찬물부터 삶을 때는 <b>물이 끓기 시작했어요</b>를 눌러 기준을 다시 잡으세요.</li>
       </ul>
     </details>

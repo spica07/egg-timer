@@ -1,10 +1,14 @@
 // 화면 전환, 기준 시간 관리, 화면 꺼짐 방지.
 (() => {
-  // 끓는 물에 넣은 뒤 삶는 시간. 냉장 보관한 보통 크기 계란 기준.
+  // 끓는 물에 넣은 뒤 삶는 시간. 냉장 보관한 보통 크기 계란 4개까지 기준.
   const BASE_COOK = { soft: 420, hard: 720 };
-  // 찬물부터 삶을 때 물이 끓기까지 잡아두는 시간. 화력에 따라 실제로는 다르므로
-  // 삶는 화면의 "물이 끓기 시작했어요" 버튼으로 그 차이를 바로잡는다.
-  const HEAT = 120;
+  // 계란이 많으면 물 온도가 더 떨어져서 다시 끓기까지 시간이 걸린다.
+  // cook = 삶는 시간에 더할 값, heat = 찬물이 끓기까지 잡아두는 시간.
+  const COUNT = {
+    few:  { cook: 0,   heat: 120 },
+    some: { cook: 60,  heat: 180 },
+    many: { cook: 120, heat: 240 }
+  };
   const NAME = { soft: '반숙', hard: '완숙' };
   const MIN_COOK = 60;
   const MAX_COOK = 1800;
@@ -40,6 +44,7 @@
   const shareToast = document.getElementById('shareToast');
 
   let water = 'boiling';   // 'boiling' | 'cold'
+  let count = 'few';       // 'few' | 'some' | 'many'
   let current = 'soft';    // 'soft' | 'hard'
   let cookMs = 0;          // 지금 돌고 있는 타이머의 삶는 시간(끓은 뒤 구간)
   let wakeLock = null;
@@ -60,11 +65,12 @@
 
   function cookSeconds(preset) {
     if (testMode) return TEST_COOK[preset];
-    return Math.min(MAX_COOK, Math.max(MIN_COOK, BASE_COOK[preset] + readOffset(preset)));
+    const value = BASE_COOK[preset] + readOffset(preset) + COUNT[count].cook;
+    return Math.min(MAX_COOK, Math.max(MIN_COOK, value));
   }
 
   function heatSeconds() {
-    return testMode ? TEST_HEAT : HEAT;
+    return testMode ? TEST_HEAT : COUNT[count].heat;
   }
 
   function totalSeconds(preset) {
@@ -81,7 +87,7 @@
       localStorage.removeItem(offsetKey('hard'));
     } catch (e) {}
     paintPickScreen();
-    showToast(`기준 시간을 ${BASE_COOK.soft / 60}분과 ${BASE_COOK.hard / 60}분으로 되돌렸어요`);
+    showToast('직접 조절한 시간을 지웠어요');
   }
 
   function paintPickScreen() {
@@ -90,8 +96,13 @@
     lede.innerHTML = LEDE[water];
     footnote.textContent = FOOTNOTE[water];
     resetBtn.hidden = testMode || !isTuned();
-    document.querySelectorAll('.water-btn').forEach(b => {
-      const on = b.dataset.water === water;
+    paintSeg('water', water);
+    paintSeg('count', count);
+  }
+
+  function paintSeg(key, value) {
+    document.querySelectorAll(`[data-${key}]`).forEach(b => {
+      const on = b.dataset[key] === value;
       b.classList.toggle('active', on);
       b.setAttribute('aria-pressed', String(on));
     });
@@ -193,9 +204,19 @@
 
   // ── 조작 ─────────────────────────────────────────
 
-  document.querySelectorAll('.water-btn').forEach(btn => {
+  document.querySelectorAll('[data-water]').forEach(btn => {
     btn.addEventListener('click', () => {
       water = btn.dataset.water;
+      try { localStorage.setItem('egg-timer:water', water); } catch (e) {}
+      paintPickScreen();
+    });
+  });
+
+  // 늘 같은 개수를 삶는 경우가 많으니 고른 값을 기억한다
+  document.querySelectorAll('[data-count]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      count = btn.dataset.count;
+      try { localStorage.setItem('egg-timer:count', count); } catch (e) {}
       paintPickScreen();
     });
   });
@@ -263,6 +284,14 @@
 
   // ── 첫 진입 ──────────────────────────────────────
 
+  // 지난번에 고른 물 상태와 개수를 그대로 이어서 쓴다
+  try {
+    const w = localStorage.getItem('egg-timer:water');
+    if (LEDE[w]) water = w;
+    const c = localStorage.getItem('egg-timer:count');
+    if (COUNT[c]) count = c;
+  } catch (e) {}
+
   paintPickScreen();
 
   // 앱을 닫았다 다시 열었을 때 아직 삶는 중이면 이어서 보여준다.
@@ -272,8 +301,6 @@
     try {
       const p = localStorage.getItem('egg-timer:preset');
       if (NAME[p]) current = p;
-      const w = localStorage.getItem('egg-timer:water');
-      if (LEDE[w]) water = w;
     } catch (e) {}
     cookMs = cookSeconds(current) * 1000;
     Egg.bind();
